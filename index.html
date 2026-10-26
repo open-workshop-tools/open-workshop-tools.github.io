@@ -1,0 +1,446 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="dark">
+<title>Open Workshop Tools</title>
+<meta name="description" content="Free, open-source design and engineering tools. No subscription, no account, no cloud. First tool: OpenCaliper, parametric 3D CAD.">
+<style>
+  :root {
+    --ink: #0a1422;
+    --panel: #0f1d31;
+    --panel-2: #132640;
+    --line: rgba(160, 196, 240, 0.13);
+    --line-strong: rgba(160, 196, 240, 0.3);
+    --text: #eaf0f7;
+    --soft: #c3cfdf;
+    --muted: #8ea2bb;
+    --blue: #7fb3ff;
+    --orange: #ff8a1f;
+    --gold: #ffd166;
+    --green: #4fd18b;
+    --mono: ui-monospace, "SFMono-Regular", "JetBrains Mono", "Cascadia Code", Menlo, Consolas, monospace;
+    --sans: system-ui, -apple-system, "Segoe UI", Roboto, Ubuntu, Cantarell, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    color: var(--text);
+    font: 17px/1.65 var(--sans);
+    background-color: var(--ink);
+    background-image:
+      radial-gradient(1200px 600px at 80% -10%, rgba(127,179,255,.10), transparent 60%),
+      linear-gradient(rgba(127,179,255,.06) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(127,179,255,.06) 1px, transparent 1px),
+      linear-gradient(rgba(127,179,255,.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(127,179,255,.03) 1px, transparent 1px);
+    background-size: auto, 100px 100px, 100px 100px, 20px 20px, 20px 20px;
+  }
+  a { color: var(--blue); text-decoration: none; }
+  a:hover { color: #fff; }
+  code { font-family: var(--mono); font-size: .9em; background: var(--panel-2); padding: 2px 6px; border-radius: 4px; }
+  .wrap { max-width: 1140px; margin: 0 auto; padding: 0 24px; }
+
+  /* ---------- nav: wordmark only, no logo ---------- */
+  nav.top { position: sticky; top: 0; z-index: 20; background: rgba(10,20,34,.85); backdrop-filter: blur(10px); border-bottom: 1px solid var(--line); }
+  nav.top .wrap { display: flex; align-items: center; height: 64px; gap: 28px; }
+  .wordmark { font: 700 14px var(--mono); letter-spacing: .18em; text-transform: uppercase; color: var(--text); }
+  .wordmark span { color: var(--orange); }
+  nav.top ul { list-style: none; display: flex; gap: 24px; margin: 0 0 0 auto; padding: 0; align-items: center; }
+  nav.top ul a { color: var(--muted); font: 500 13px var(--mono); letter-spacing: .06em; text-transform: uppercase; }
+  nav.top ul a:hover { color: var(--text); }
+  nav.top .star-mini { color: var(--ink); background: var(--gold); padding: 7px 12px; border-radius: 4px; font-weight: 700; }
+  nav.top .star-mini:hover { color: var(--ink); background: #ffe08f; }
+  @media (max-width: 760px) { nav.top ul li.hide-sm { display: none; } }
+
+  /* ---------- buttons ---------- */
+  .cta { display: flex; gap: 14px; flex-wrap: wrap; }
+  .btn { display: inline-flex; align-items: center; gap: 10px; padding: 14px 22px; border-radius: 4px; font: 600 14px var(--mono); letter-spacing: .04em; text-transform: uppercase; border: 1px solid var(--line-strong); color: var(--text); background: rgba(19,38,64,.6); }
+  .btn:hover { border-color: var(--blue); color: #fff; }
+  .btn.primary { background: var(--orange); border-color: var(--orange); color: #1a0d00; }
+  .btn.primary:hover { background: #ffa04a; color: #1a0d00; }
+  .btn.star { background: var(--gold); border-color: var(--gold); color: #1f1600; }
+  .btn.star:hover { background: #ffe08f; color: #1f1600; }
+
+  /* ---------- hero ---------- */
+  .hero { padding: 92px 0 40px; display: grid; grid-template-columns: 1.05fr .95fr; gap: 56px; align-items: center; }
+  @media (max-width: 920px) { .hero { grid-template-columns: 1fr; padding-top: 56px; gap: 36px; } }
+  .kicker { display: inline-flex; align-items: center; gap: 10px; font: 600 12px var(--mono); letter-spacing: .16em; text-transform: uppercase; color: var(--orange); }
+  .kicker::before { content: ""; width: 28px; height: 2px; background: var(--orange); }
+  .hero h1 { font-size: clamp(44px, 7vw, 84px); line-height: .96; letter-spacing: -.04em; margin: 18px 0 24px; font-weight: 850; }
+  .hero h1 em { font-style: normal; color: var(--orange); }
+  .hero p.lead { font-size: clamp(18px, 2.1vw, 21px); color: var(--soft); max-width: 560px; margin: 0 0 34px; }
+  .hero-art svg { width: 100%; height: auto; display: block; }
+
+  .stats { display: grid; grid-template-columns: repeat(4, 1fr); border: 1px solid var(--line-strong); margin: 56px 0 96px; background: rgba(15,29,49,.7); }
+  @media (max-width: 760px) { .stats { grid-template-columns: repeat(2, 1fr); } }
+  .stat { padding: 24px 26px; border-right: 1px solid var(--line-strong); }
+  .stat:last-child { border-right: 0; }
+  @media (max-width: 760px) { .stat:nth-child(2) { border-right: 0; } .stat:nth-child(-n+2) { border-bottom: 1px solid var(--line-strong); } }
+  .stat b { display: block; font: 700 clamp(28px, 3.4vw, 38px)/1.1 var(--mono); color: var(--text); letter-spacing: -.02em; }
+  .stat span { font: 500 12px var(--mono); color: var(--muted); letter-spacing: .12em; text-transform: uppercase; }
+
+  /* ---------- sections ---------- */
+  section { padding: 96px 0; border-top: 1px solid var(--line); }
+  .label { font: 600 12px var(--mono); color: var(--orange); letter-spacing: .16em; text-transform: uppercase; margin-bottom: 16px; }
+  .label span { color: var(--muted); }
+  h2 { font-size: clamp(32px, 4.6vw, 52px); line-height: 1.04; letter-spacing: -.03em; margin: 0 0 22px; font-weight: 800; max-width: 860px; }
+  .intro { color: var(--soft); max-width: 720px; font-size: 19px; margin: 0; }
+
+  .manifesto { display: grid; grid-template-columns: 1fr 1fr; gap: 56px; margin-top: 40px; }
+  @media (max-width: 860px) { .manifesto { grid-template-columns: 1fr; gap: 28px; } }
+  .manifesto p { margin: 0 0 18px; color: var(--soft); }
+  .manifesto .big { font-size: clamp(22px, 2.6vw, 29px); line-height: 1.35; color: var(--text); font-weight: 650; letter-spacing: -.01em; border-left: 3px solid var(--orange); padding-left: 24px; margin: 0; align-self: start; }
+
+  .principles { display: grid; grid-template-columns: repeat(3, 1fr); margin-top: 44px; border-top: 1px solid var(--line-strong); border-left: 1px solid var(--line-strong); }
+  @media (max-width: 900px) { .principles { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 560px) { .principles { grid-template-columns: 1fr; } }
+  .principle { padding: 30px 28px 32px; border-right: 1px solid var(--line-strong); border-bottom: 1px solid var(--line-strong); background: rgba(15,29,49,.55); transition: background .2s; }
+  .principle:hover { background: rgba(19,38,64,.95); }
+  .principle .num { font: 600 13px var(--mono); color: var(--orange); }
+  .principle h3 { margin: 14px 0 8px; font-size: 21px; letter-spacing: -.01em; }
+  .principle p { margin: 0; color: var(--muted); font-size: 16px; }
+
+  /* tool card */
+  .tool { margin-top: 44px; position: relative; border: 1px solid var(--line-strong); background: rgba(15,29,49,.8); padding: 40px; display: grid; grid-template-columns: .9fr 1.1fr; gap: 44px; align-items: center; }
+  @media (max-width: 920px) { .tool { grid-template-columns: 1fr; padding: 28px; } }
+  .tool::before, .tool::after { content: ""; position: absolute; width: 18px; height: 18px; border-color: var(--orange); border-style: solid; }
+  .tool::before { top: -1px; left: -1px; border-width: 2px 0 0 2px; }
+  .tool::after { bottom: -1px; right: -1px; border-width: 0 2px 2px 0; }
+  .tool-head { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; margin-bottom: 6px; }
+  .tool-head h3 { margin: 0; font-size: 34px; letter-spacing: -.02em; }
+  .status { font: 600 11px var(--mono); letter-spacing: .12em; text-transform: uppercase; color: var(--green); border: 1px solid rgba(79,209,139,.45); padding: 4px 9px; border-radius: 3px; }
+  .status::before { content: "● "; }
+  .tool .what { color: var(--muted); margin: 0 0 22px; font: 14px var(--mono); letter-spacing: .02em; }
+  .spec { list-style: none; padding: 0; margin: 0 0 26px; }
+  .spec li { display: grid; grid-template-columns: 110px 1fr; gap: 14px; padding: 10px 0; border-bottom: 1px dashed var(--line-strong); font-size: 15px; color: var(--soft); }
+  .spec li b { font: 500 12px var(--mono); color: var(--muted); letter-spacing: .08em; text-transform: uppercase; padding-top: 3px; }
+  .stars-badge { display: inline-flex; align-items: center; gap: 10px; margin: 0 0 22px; font: 500 13px var(--mono); color: var(--muted); }
+  .stars-badge img { height: 22px; }
+  .window { border: 1px solid var(--line-strong); border-radius: 8px; overflow: hidden; background: #08111d; box-shadow: 0 30px 80px rgba(0,0,0,.45); }
+  .window .bar { display: flex; align-items: center; gap: 7px; padding: 10px 12px; border-bottom: 1px solid var(--line); font: 500 12px var(--mono); color: var(--muted); }
+  .window .bar i { width: 10px; height: 10px; border-radius: 50%; background: #2a3a52; display: inline-block; }
+  .window .bar span { margin-left: 8px; }
+  .window img { display: block; width: 100%; height: auto; }
+
+  /* star section */
+  .star-panel { margin-top: 44px; border: 1px solid rgba(255,209,102,.45); background: linear-gradient(135deg, rgba(255,209,102,.10), rgba(255,138,31,.05) 55%, rgba(15,29,49,.6)); padding: 48px; display: grid; grid-template-columns: 1.1fr .9fr; gap: 48px; }
+  @media (max-width: 920px) { .star-panel { grid-template-columns: 1fr; padding: 30px; gap: 32px; } }
+  .star-panel h3 { margin: 0 0 14px; font-size: 26px; letter-spacing: -.01em; }
+  .reasons { list-style: none; padding: 0; margin: 0; }
+  .reasons li { padding: 14px 0 14px 40px; border-bottom: 1px solid var(--line); position: relative; color: var(--soft); }
+  .reasons li:last-child { border-bottom: 0; }
+  .reasons li::before { content: "★"; position: absolute; left: 4px; top: 13px; color: var(--gold); font-size: 18px; }
+  .reasons strong { color: var(--text); }
+  .steps { counter-reset: s; list-style: none; padding: 0; margin: 0 0 28px; }
+  .steps li { counter-increment: s; display: grid; grid-template-columns: 44px 1fr; gap: 14px; align-items: start; padding: 12px 0; color: var(--soft); }
+  .steps li::before { content: counter(s, decimal-leading-zero); font: 700 14px var(--mono); color: #1f1600; background: var(--gold); border-radius: 4px; text-align: center; padding: 6px 0; }
+  .steps strong { color: var(--text); }
+  .star-panel .small { color: var(--muted); font-size: 15px; margin: 18px 0 0; }
+
+  /* roadmap */
+  table.sheet { width: 100%; border-collapse: collapse; margin-top: 40px; font-size: 16px; }
+  .sheet th { text-align: left; font: 600 12px var(--mono); color: var(--muted); letter-spacing: .12em; text-transform: uppercase; padding: 0 16px 14px 0; border-bottom: 1px solid var(--line-strong); }
+  .sheet td { padding: 22px 16px 22px 0; border-bottom: 1px solid var(--line); vertical-align: top; }
+  .sheet td:first-child { font: 600 13px var(--mono); color: var(--orange); width: 64px; }
+  .sheet td.name { font-weight: 700; font-size: 18px; width: 240px; }
+  .sheet td.desc { color: var(--soft); }
+  .sheet td.state { font: 600 12px var(--mono); letter-spacing: .1em; text-transform: uppercase; color: var(--muted); white-space: nowrap; text-align: right; }
+  .sheet tr.live td.state { color: var(--green); }
+  @media (max-width: 760px) {
+    .sheet thead { display: none; }
+    .sheet tr { display: block; padding: 18px 0; border-bottom: 1px solid var(--line); }
+    .sheet td { display: block; border: 0; padding: 2px 0; width: auto !important; text-align: left !important; }
+  }
+  .footnote { margin-top: 22px; color: var(--muted); font-size: 15px; max-width: 720px; }
+
+  .join { display: grid; grid-template-columns: 1.2fr .8fr; gap: 40px; align-items: end; }
+  @media (max-width: 860px) { .join { grid-template-columns: 1fr; } }
+  .join p { color: var(--soft); margin: 0; }
+  .join .cta { justify-content: flex-end; }
+  @media (max-width: 860px) { .join .cta { justify-content: flex-start; } }
+
+  footer { border-top: 1px solid var(--line); padding: 40px 0 64px; color: var(--muted); font-size: 14px; }
+  footer .row { display: flex; justify-content: space-between; gap: 24px; flex-wrap: wrap; }
+  footer p { margin: 6px 0; max-width: 640px; }
+  footer .mono { font: 600 12px var(--mono); letter-spacing: .14em; text-transform: uppercase; color: var(--text); }
+</style>
+</head>
+<body>
+
+<nav class="top">
+  <div class="wrap">
+    <a class="wordmark" href="#">Open <span>Workshop</span> Tools</a>
+    <ul>
+      <li class="hide-sm"><a href="#why">Why</a></li>
+      <li class="hide-sm"><a href="#tools">Tools</a></li>
+      <li class="hide-sm"><a href="#roadmap">Roadmap</a></li>
+      <li class="hide-sm"><a href="https://github.com/open-workshop-tools">GitHub</a></li>
+      <li><a class="star-mini" href="https://github.com/open-workshop-tools/Open-Caliper">★ Star</a></li>
+    </ul>
+  </div>
+</nav>
+
+<header class="wrap">
+  <div class="hero">
+    <div>
+      <div class="kicker">Open-source design tools</div>
+      <h1>Tools you own.<br><em>Not rent.</em></h1>
+      <p class="lead">
+        Free programs for designing real things: parts, drawings and the files
+        machines need to make them. No subscription, no account, no cloud. Your
+        work stays on your computer, in open formats.
+      </p>
+      <div class="cta">
+        <a class="btn primary" href="#tools">Get OpenCaliper →</a>
+        <a class="btn star" href="https://github.com/open-workshop-tools/Open-Caliper">★ Star on GitHub</a>
+      </div>
+    </div>
+
+    <!-- blueprint of a generic workshop part: an L-bracket with two holes -->
+    <div class="hero-art" aria-hidden="true">
+      <svg viewBox="0 0 520 420" fill="none" stroke-linecap="round" stroke-linejoin="round">
+        <g stroke="#7fb3ff" stroke-width="2" fill="rgba(127,179,255,.05)">
+          <!-- base plate -->
+          <path d="M90 270 L260 190 L430 270 L260 350 Z"/>
+          <path d="M90 270 L90 292 L260 372 L260 350"/>
+          <path d="M430 270 L430 292 L260 372"/>
+          <!-- upright wall -->
+          <path d="M90 270 L90 120 L260 40 L260 190"/>
+          <path d="M110 260 L110 130 L260 60" stroke-opacity=".0"/>
+          <path d="M90 120 L112 130 L282 50 L260 40"/>
+          <path d="M112 130 L112 280"/>
+          <path d="M282 50 L282 200"/>
+        </g>
+        <!-- holes -->
+        <g stroke="#7fb3ff" stroke-width="2" fill="#0a1422">
+          <ellipse cx="300" cy="282" rx="26" ry="12"/>
+          <ellipse cx="190" cy="152" rx="10" ry="20" transform="rotate(-25 190 152)"/>
+        </g>
+        <g stroke="#7fb3ff" stroke-width="1" stroke-dasharray="10 4 2 4" opacity=".55">
+          <path d="M300 258 L300 306"/>
+          <path d="M262 282 L338 282"/>
+        </g>
+        <!-- dimensions -->
+        <g stroke="#8ea2bb" stroke-width="1.2">
+          <path d="M260 372 L300 391"/>
+          <path d="M430 292 L470 311"/>
+          <path d="M292 387 L462 307"/>
+          <path d="M292 387 l9 -1 M292 387 l5 -7"/>
+          <path d="M462 307 l-9 1 M462 307 l-5 7"/>
+          <path d="M90 120 L52 120"/>
+          <path d="M90 292 L52 292"/>
+          <path d="M62 124 L62 288"/>
+          <path d="M62 124 l-4 9 M62 124 l4 9"/>
+          <path d="M62 288 l-4 -9 M62 288 l4 -9"/>
+        </g>
+        <text x="352" y="370" fill="#8ea2bb" font-family="ui-monospace, Menlo, monospace" font-size="13" transform="rotate(-25 352 370)">120.00</text>
+        <text x="36" y="212" fill="#8ea2bb" font-family="ui-monospace, Menlo, monospace" font-size="13" transform="rotate(-90 36 212)">80.00</text>
+        <!-- hole callout -->
+        <g stroke="#ff8a1f" stroke-width="1.4">
+          <path d="M322 274 L372 214 L444 214"/>
+        </g>
+        <text x="378" y="205" fill="#ff8a1f" font-family="ui-monospace, Menlo, monospace" font-size="15" font-weight="600">2× Ø 8.50</text>
+        <!-- title block -->
+        <g stroke="#3a5274" stroke-width="1">
+          <rect x="330" y="20" width="170" height="64"/>
+          <path d="M330 44 H500 M415 44 V84"/>
+        </g>
+        <text x="340" y="37" fill="#eaf0f7" font-family="ui-monospace, Menlo, monospace" font-size="12" font-weight="700">BRACKET-01</text>
+        <text x="340" y="62" fill="#8ea2bb" font-family="ui-monospace, Menlo, monospace" font-size="10">SCALE 1:1</text>
+        <text x="340" y="77" fill="#8ea2bb" font-family="ui-monospace, Menlo, monospace" font-size="10">UNITS MM</text>
+        <text x="425" y="62" fill="#8ea2bb" font-family="ui-monospace, Menlo, monospace" font-size="10">LICENCE</text>
+        <text x="425" y="77" fill="#ff8a1f" font-family="ui-monospace, Menlo, monospace" font-size="10" font-weight="700">MIT</text>
+      </svg>
+    </div>
+  </div>
+
+  <div class="stats">
+    <div class="stat"><b>$0</b><span>Forever</span></div>
+    <div class="stat"><b>0</b><span>Accounts needed</span></div>
+    <div class="stat"><b>100%</b><span>Works offline</span></div>
+    <div class="stat"><b>MIT</b><span>Open source</span></div>
+  </div>
+</header>
+
+<main>
+  <section id="why">
+    <div class="wrap">
+      <div class="label">01 <span>/ Why we exist</span></div>
+      <h2>A workshop should be full of tools that just work, year after year.</h2>
+      <div class="manifesto">
+        <div>
+          <p>
+            Nobody asks you to sign in before you pick up a ruler. A square does not
+            stop working when a card payment fails. Yet much of today's design
+            software works exactly like that: programs became services, licences
+            became subscriptions, and drawings moved to servers that belong to
+            someone else.
+          </p>
+          <p>
+            For large companies that may be a fair trade. For students, makers with a
+            3D printer or a small CNC, repair shops, small workshops and hobby
+            engineers, it often means renting the right to open their own work.
+          </p>
+          <p>
+            So we build a family of focused tools instead of one giant program. Each
+            does one job well, with its own name and its own releases. They share the
+            same principles and, where it helps, the same core. Where a great
+            open-source tool already exists, we connect to it instead of rebuilding it.
+          </p>
+        </div>
+        <p class="big">
+          Free tools that work offline, read and write open formats, and can never
+          be taken away, because their source code belongs to everyone.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <section id="principles">
+    <div class="wrap">
+      <div class="label">02 <span>/ Principles</span></div>
+      <h2>Six promises every tool keeps.</h2>
+      <div class="principles">
+        <div class="principle"><div class="num">01</div><h3>Free, forever</h3><p>No price, no trial, no "pro" tier. Commercial use included.</p></div>
+        <div class="principle"><div class="num">02</div><h3>No account, no cloud</h3><p>Nothing to sign in to and no network access. Files go where you save them.</p></div>
+        <div class="principle"><div class="num">03</div><h3>Open formats</h3><p>Project files you can read in a text editor. Exports in STEP, STL, DXF and other standards.</p></div>
+        <div class="principle"><div class="num">04</div><h3>Open source</h3><p>MIT licensed and public on GitHub. Anyone can check it, fix it or carry it on.</p></div>
+        <div class="principle"><div class="num">05</div><h3>Private by design</h3><p>No telemetry, no tracking. What you design stays on your machine.</p></div>
+        <div class="principle"><div class="num">06</div><h3>Honest scope</h3><p>Each tool says plainly what it can and cannot do yet. Small and solid beats big and broken.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="tools">
+    <div class="wrap">
+      <div class="label">03 <span>/ Tools</span></div>
+      <h2>Available now.</h2>
+      <div class="tool">
+        <div>
+          <div class="tool-head">
+            <svg width="44" height="44" viewBox="0 0 128 128" aria-hidden="true">
+              <rect x="8" y="8" width="112" height="112" rx="24" fill="#2563a8"/>
+              <rect x="20" y="34" width="92" height="16" rx="3" fill="#f2f5f8"/>
+              <path d="M20 34h18v62l-9 10-9-10z" fill="#f2f5f8"/>
+              <path d="M58 28h22v28h-4v40l-9 10-9-10z" fill="#ffb02e"/>
+            </svg>
+            <h3>OpenCaliper</h3>
+            <span class="status">Available</span>
+          </div>
+          <p class="what">Parametric 3D CAD · parts &amp; 3D printing</p>
+          <a class="stars-badge" href="https://github.com/open-workshop-tools/Open-Caliper/stargazers">
+            <img src="https://img.shields.io/github/stars/open-workshop-tools/Open-Caliper?style=social" alt="GitHub stars of OpenCaliper">
+          </a>
+          <ul class="spec">
+            <li><b>Sketch</b><span>Lines, circles, arcs with constraints and exact dimensions</span></li>
+            <li><b>Model</b><span>Extrude, revolve, fillet, chamfer; join, cut, intersect</span></li>
+            <li><b>Edit</b><span>Double-click a dimension on the part, or any step in the timeline</span></li>
+            <li><b>Files</b><span>Open <code>.ocal</code> projects; STEP, IGES, STL, OBJ export</span></li>
+            <li><b>Runs on</b><span>Linux (AppImage, Flatpak) and Windows 10 / 11</span></li>
+          </ul>
+          <div class="cta">
+            <a class="btn primary" href="https://github.com/open-workshop-tools/Open-Caliper/releases/latest">Download</a>
+            <a class="btn star" href="https://github.com/open-workshop-tools/Open-Caliper">★ Star</a>
+            <a class="btn" href="https://open-workshop-tools.github.io/Open-Caliper/">Learn more</a>
+          </div>
+        </div>
+        <div class="window">
+          <div class="bar"><i></i><i></i><i></i><span>OpenCaliper</span></div>
+          <img src="https://raw.githubusercontent.com/open-workshop-tools/Open-Caliper/main/docs/screenshot.png"
+               alt="OpenCaliper with a part made of a sketch, an extrusion and a fillet" width="1400" height="860" loading="lazy">
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="star">
+    <div class="wrap">
+      <div class="label">04 <span>/ Support us</span></div>
+      <h2>Like the idea? Give it a star.</h2>
+      <p class="intro">
+        We do not ask for money, and we never will. The one thing that helps a small
+        open-source project the most costs you nothing and takes two seconds: a
+        star on GitHub.
+      </p>
+      <div class="star-panel">
+        <div>
+          <h3>Why a star matters</h3>
+          <ul class="reasons">
+            <li><strong>People find us.</strong> GitHub shows starred projects higher in search and in its trending lists, so more makers discover free tools.</li>
+            <li><strong>It shows the project is alive.</strong> New users trust a project that others already use.</li>
+            <li><strong>It tells us what to build.</strong> Stars on each tool show where the next hours of work are best spent.</li>
+            <li><strong>It keeps us going.</strong> Every star is a small "thank you" to the people writing the code.</li>
+          </ul>
+        </div>
+        <div>
+          <h3>How to star, in three steps</h3>
+          <ol class="steps">
+            <li><span><strong>Sign in</strong> to GitHub, or create a free account.</span></li>
+            <li><span><strong>Open the project</strong>: <a href="https://github.com/open-workshop-tools/Open-Caliper">github.com/open-workshop-tools/Open-Caliper</a></span></li>
+            <li><span>Click <strong>★ Star</strong> in the top right corner. Done!</span></li>
+          </ol>
+          <div class="cta">
+            <a class="btn star" href="https://github.com/open-workshop-tools/Open-Caliper">★ Star OpenCaliper</a>
+          </div>
+          <p class="small">
+            Want to know when a new version comes out? On the same page, click
+            <strong>Watch → Custom → Releases</strong>. And if a friend could use
+            a free CAD program, send them this page.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="roadmap">
+    <div class="wrap">
+      <div class="label">05 <span>/ Roadmap</span></div>
+      <h2>The rest of the workshop.</h2>
+      <table class="sheet">
+        <thead><tr><th>No.</th><th>Tool</th><th>What it will do</th><th style="text-align:right">Status</th></tr></thead>
+        <tbody>
+          <tr class="live"><td>01</td><td class="name">OpenCaliper</td><td class="desc">Parametric 3D parts with sketches, constraints and an editable history.</td><td class="state">● Released</td></tr>
+          <tr><td>02</td><td class="name">2D drafting</td><td class="desc">Constraint-based 2D drawing for plans, layouts and laser or plasma cutting, with DXF in and out.</td><td class="state">Planned</td></tr>
+          <tr><td>03</td><td class="name">Technical drawings</td><td class="desc">Dimensioned 2D views of OpenCaliper parts with a title block, ready for the machine shop.</td><td class="state">Planned</td></tr>
+          <tr><td>04</td><td class="name">CAM for CNC</td><td class="desc">Tool paths and G-code for milling and routing, straight from OpenCaliper parts.</td><td class="state">Planned</td></tr>
+          <tr><td>05</td><td class="name">Electronics bridge</td><td class="desc">KiCad already does circuit boards well. We will bring board outlines into OpenCaliper so enclosures fit the first time.</td><td class="state">Idea</td></tr>
+        </tbody>
+      </table>
+      <p class="footnote">These are plans, not promises. Only OpenCaliper exists today, and the order follows what people need most. Starring a project is the easiest way to tell us.</p>
+    </div>
+  </section>
+
+  <section id="join">
+    <div class="wrap join">
+      <div>
+        <div class="label">06 <span>/ Get involved</span></div>
+        <h2>Help build the workshop.</h2>
+        <p>
+          Use the tools and tell us what is missing or broken. Bug reports, ideas,
+          translations and pull requests are all welcome.
+        </p>
+      </div>
+      <div class="cta">
+        <a class="btn star" href="https://github.com/open-workshop-tools/Open-Caliper">★ Star</a>
+        <a class="btn" href="https://github.com/open-workshop-tools/Open-Caliper/issues">Report an issue</a>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap row">
+    <div>
+      <p class="mono">Open Workshop Tools</p>
+      <p>Our tools are MIT licensed and build on other open-source projects such as Open CASCADE Technology and Qt.</p>
+      <p>An independent project, not affiliated with or endorsed by any commercial software vendor. All trademarks belong to their owners.</p>
+    </div>
+    <p><a href="https://github.com/open-workshop-tools">github.com/open-workshop-tools</a></p>
+  </div>
+</footer>
+
+</body>
+</html>
